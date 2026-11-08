@@ -1,0 +1,74 @@
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    --tamaño-body: 800px;
+}
+
+body {
+    margin: 0;
+    margin: auto;
+    max-width: var(--tamaño-body);
+    margin-top: 50px ;
+    margin-bottom: 50px;
+}
+
+#principal {
+    display: grid;
+    grid-auto-rows: calc(var(--tamaño-body) / 20);
+    margin: auto; 
+}
+
+div {
+    display: flex;
+    background-color: rgb(254, 255, 255);
+    align-items: center;
+}
+
+div p {
+    width: calc(var(--tamaño-body) / 20);
+    height: calc(var(--tamaño-body) / 20);
+    background-color: rgb(163, 161, 161);
+    box-shadow: inset 3px 3px 3px white,
+                inset -3px -3px 3px black;
+    display: grid;
+    place-items: center;
+    font-family: 'Orbitron', sans-serif;
+}
+
+
+#principal .bomba {
+    background: linear-gradient(rgba(251, 171, 171, 0.567), rgba(255, 2, 2, 0.545)), url(../img/mina.png);
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+
+.vacio, .uno, .dos, .tres, .cuatro, .cinco, .seis, .siete, .ocho {
+    box-shadow: none;
+    font-weight: bold;
+    background-color: rgb(114, 113, 113);
+    font-size: 1.5rem;
+    text-shadow: 2px 2px 2px rgb(5, 5, 5);
+}
+
+.uno {
+    color: green;
+}
+
+.dos {
+    color: blue;
+}
+
+.tres {
+    color: yellow;
+}
+
+.cuatro {
+    color: orange;
+}
+
+.cinco {
+    color: red;
+}

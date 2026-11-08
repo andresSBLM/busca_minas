@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Busca minas</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <main id="principal">
+
+    </main>
+    <section id="puntos">
+
+    </section>
+    <footer>
+        <a href="index.html">Reiniciar</a>
+    </footer>
+    <script>
+        const TAMAÑO_TABLERO = 20;
+
+
+        function terminar_partida() {
+            alert("Has perdido");
+            window.location.href = "index.html";
+        }
+
+        function construir_tablero() {
+            const MAIN = document.getElementById("principal");
+            for (let y = 1; y <= TAMAÑO_TABLERO; y++) {
+                const DIV = document.createElement("div");
+                for (let x = 1; x <= TAMAÑO_TABLERO; x++) {
+                    const NUMERO = (Math.random()) * 11;
+                    const P = document.createElement("p");
+                    P.dataset.ejex = x;
+                    P.dataset.ejey = y;
+                    if (NUMERO <= 1) {
+                        P.classList.add("bomba");
+                    }
+                    P.addEventListener('click', () => {
+                        if(P.classList == "bomba") {
+                            escanear_todo();
+                            setTimeout(() => {
+                                terminar_partida();
+                            }, 1000);
+                        } else {
+                            explorar_entorno(P.dataset.ejex, P.dataset.ejey);
+                        }
+                    });
+                    DIV.appendChild(P);
+                }
+                MAIN.appendChild(DIV);
+            }
+        }
+
+        construir_tablero();
+
+        function minas_alrededor() {
+            const BOTONES = document.getElementsByTagName("p");
+            for (let P of BOTONES) {
+                const EJE_X = parseInt(P.dataset.ejex);
+                const EJE_Y = parseInt(P.dataset.ejey);
+                var contador = 0;
+                console.log("NUEVO RECUENTO");
+                for (let x = -1; x <= 1; x++) {
+                    for (let y = -1; y <= 1; y++) {
+                        if (x === 0 && y === 0){
+                            continue;
+                        }
+                        const elemento = document.querySelector(`[data-ejex="${EJE_X + x}"][data-ejey="${EJE_Y + y}"]`);
+                        try {
+                            if  (elemento.classList == "bomba") {
+                            contador++;
+                            }
+                        } catch(err) {
+                            console.log(EJE_X + " " + EJE_Y + " No tiene elemento");
+                        }
+                    }
+                }
+                if (P.classList != "bomba") {
+                    P.dataset.minas = contador;
+                } else {
+                    P.dataset.minas = 0;
+                }
+            }
+        }
+
+        minas_alrededor();
+
+        function escanear_todo() {
+            const BOTONES = document.getElementsByTagName("p");
+            for (let boton of BOTONES) {
+                switch (boton.dataset.minas) {
+                    case "0": 
+                        boton.classList.add("vacio"); 
+                        break;
+                    case "1": 
+                        boton.classList.add("uno");
+                        boton.textContent = 1;
+                        break;
+                    case "2":
+                        boton.classList.add("dos");
+                        boton.textContent = 2;
+                        break;
+                    case "3":
+                        boton.classList.add("tres");
+                        boton.textContent = 3;
+                        break;
+                    case "4":
+                        boton.classList.add("cuatro");
+                        boton.textContent = 4;
+                        break;
+                    default:
+                        if (boton.classList == "bomba") {
+                            boton.textContent = "";
+                        }
+                }
+            }
+        }
+
+        function explorar_entorno(x,y) {
+            const CLASES = ["vacio", "uno", "dos", "tres", "cuatro", "cinco"];
+            for (let arriba = y; arriba > 0; arriba--) {
+                const ELEMENTO = document.querySelector(`[data-ejex="${x}"][data-ejey="${arriba}"]`);
+                if (ELEMENTO.dataset.minas == 0) {
+                    ELEMENTO.classList.add("vacio");
+                } else if (ELEMENTO.dataset.minas != 0) {
+                    const NUMERO = parseInt(ELEMENTO.dataset.minas);
+                    const CLASE = CLASES[NUMERO];
+                    ELEMENTO.classList.add(CLASE);
+                    ELEMENTO.textContent = ELEMENTO.dataset.minas;
+                }
+            }
+        }
+
+        
+
+        
+    </script>
+</body>
+</html>
