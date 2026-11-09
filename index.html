@@ -10,18 +10,33 @@
     <main id="principal">
 
     </main>
-    <section id="puntos">
-
+    <section>
+        <div id="puntos"></div>
+        <div id="restantes"></div>
+        <div id="minas"></div>
     </section>
     <footer>
         <a href="index.html">Reiniciar</a>
     </footer>
     <script>
+        const PUNTOS = document.getElementById("puntos");
+        const RESTANTES = document.getElementById("restantes")
+        const MINAS = document.getElementById("minas");
         const TAMAÑO_TABLERO = 20;
+        var celdas_limpiadas = 0;
+        var total_celdas_limpias = 0;
+        var minas = 0;
+        PUNTOS.textContent = celdas_limpiadas;
+    
 
 
         function terminar_partida() {
             alert("Has perdido");
+            window.location.href = "index.html";
+        }
+
+        function victoria() {
+            alert("Has ganado");
             window.location.href = "index.html";
         }
 
@@ -36,6 +51,9 @@
                     P.dataset.ejey = y;
                     if (NUMERO <= 1) {
                         P.classList.add("bomba");
+                        minas++;
+                    } else {
+                        total_celdas_limpias++;
                     }
                     P.addEventListener('click', () => {
                         if(P.classList == "bomba") {
@@ -43,14 +61,28 @@
                             setTimeout(() => {
                                 terminar_partida();
                             }, 1000);
+                        } else if (P.dataset.minas != 0) {
+                            celdas_limpiadas++;
+                            if (celdas_limpiadas == total_celdas_limpias) {
+                                setTimeout(() => {victoria()}, 1000);
+                                return;
+                            }
+                            PUNTOS.textContent = celdas_limpiadas;
+                            const CLASES = ["vacio", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho"];
+                            const NUMERO = P.dataset.minas;
+                            const CLASE = CLASES[NUMERO];
+                            P.classList.add(CLASE);
+                            P.textContent = NUMERO;
                         } else {
-                            explorar_entorno(P.dataset.ejex, P.dataset.ejey);
+                            explorar_entorno(parseInt(P.dataset.ejex), parseInt(P.dataset.ejey));
                         }
                     });
                     DIV.appendChild(P);
                 }
                 MAIN.appendChild(DIV);
             }
+            RESTANTES.textContent = total_celdas_limpias;
+            MINAS.textContent = minas;
         }
 
         construir_tablero();
@@ -58,29 +90,28 @@
         function minas_alrededor() {
             const BOTONES = document.getElementsByTagName("p");
             for (let P of BOTONES) {
-                const EJE_X = parseInt(P.dataset.ejex);
-                const EJE_Y = parseInt(P.dataset.ejey);
-                var contador = 0;
-                console.log("NUEVO RECUENTO");
-                for (let x = -1; x <= 1; x++) {
-                    for (let y = -1; y <= 1; y++) {
-                        if (x === 0 && y === 0){
-                            continue;
-                        }
-                        const elemento = document.querySelector(`[data-ejex="${EJE_X + x}"][data-ejey="${EJE_Y + y}"]`);
-                        try {
-                            if  (elemento.classList == "bomba") {
-                            contador++;
+                if (P.classList != "bomba") {
+
+                    const EJE_X = parseInt(P.dataset.ejex);
+                    const EJE_Y = parseInt(P.dataset.ejey);
+                    var contador = 0;
+                    console.log("NUEVO RECUENTO");
+                    for (let x = -1; x <= 1; x++) {
+                        for (let y = -1; y <= 1; y++) {
+                            if (x === 0 && y === 0){
+                                continue;
                             }
-                        } catch(err) {
-                            console.log(EJE_X + " " + EJE_Y + " No tiene elemento");
+                            const elemento = document.querySelector(`[data-ejex="${EJE_X + x}"][data-ejey="${EJE_Y + y}"]`);
+                            try {
+                                if  (elemento.classList == "bomba") {
+                                contador++;
+                                }
+                            } catch(err) {
+                                console.log(EJE_X + " " + EJE_Y + " No tiene elemento");
+                            }
                         }
                     }
-                }
-                if (P.classList != "bomba") {
                     P.dataset.minas = contador;
-                } else {
-                    P.dataset.minas = 0;
                 }
             }
         }
@@ -90,6 +121,11 @@
         function escanear_todo() {
             const BOTONES = document.getElementsByTagName("p");
             for (let boton of BOTONES) {
+                if (boton.classList == "bomba") {
+                    boton.classList.remove("bomba");
+                    boton.classList.add("bomba_activa");
+                    continue;
+                }
                 switch (boton.dataset.minas) {
                     case "0": 
                         boton.classList.add("vacio"); 
@@ -110,32 +146,72 @@
                         boton.classList.add("cuatro");
                         boton.textContent = 4;
                         break;
+                    case "5":
+                        boton.classList.add("cinco");
+                        boton.textContent = 5;
+                        break;
+                    case "6":
+                        boton.classList.add("seis");
+                        boton.textContent = 6;
+                        break;
+                    case "7":
+                        boton.classList.add("siete");
+                        boton.textContent = 7;
+                        break;
+                    case "8":
+                        boton.classList.add("ocho");
+                        boton.textContent = 8;
+                        break;
                     default:
                         if (boton.classList == "bomba") {
                             boton.textContent = "";
                         }
                 }
             }
+            total_celdas_limpias = 0;
+            PUNTOS.textContent = total_celdas_limpias;
         }
 
         function explorar_entorno(x,y) {
-            const CLASES = ["vacio", "uno", "dos", "tres", "cuatro", "cinco"];
-            for (let arriba = y; arriba > 0; arriba--) {
-                const ELEMENTO = document.querySelector(`[data-ejex="${x}"][data-ejey="${arriba}"]`);
-                if (ELEMENTO.dataset.minas == 0) {
-                    ELEMENTO.classList.add("vacio");
-                } else if (ELEMENTO.dataset.minas != 0) {
-                    const NUMERO = parseInt(ELEMENTO.dataset.minas);
-                    const CLASE = CLASES[NUMERO];
-                    ELEMENTO.classList.add(CLASE);
-                    ELEMENTO.textContent = ELEMENTO.dataset.minas;
+            if (celdas_limpiadas == total_celdas_limpias) {
+                return victoria();
+            }
+            const CLASES = ["vacio", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho"];
+            for (let x2 = -1; x2 <= 1; x2++) {
+                for (let y2 = -1; y2 <= 1; y2++) {
+                    if (x2 === 0 && y2 === 0) {
+                        continue;
+                    }
+                    const ELEMENTO = document.querySelector(`[data-ejex="${x + x2}"][data-ejey="${y + y2}"]`);
+                    if (ELEMENTO) {
+                        if (!ELEMENTO.dataset.vista) {
+                            if (ELEMENTO.classList != "bomba") {
+                                if (ELEMENTO.dataset.vista != "numero") {
+                                    celdas_limpiadas++;
+                                }
+                                if (ELEMENTO.dataset.minas == 0) {
+                                    ELEMENTO.dataset.vista = "vacio";
+                                    ELEMENTO.classList.add("vacio");
+                                    const NUEVO_EJEX = parseInt(ELEMENTO.dataset.ejex);
+                                    const NUEVO_EJEY = parseInt(ELEMENTO.dataset.ejey);
+                                    explorar_entorno(NUEVO_EJEX, NUEVO_EJEY);
+                                } else {
+                                    const NUMERO = parseInt(ELEMENTO.dataset.minas);
+                                    const CLASE = CLASES[NUMERO];
+                                    ELEMENTO.classList.add(CLASE);
+                                    ELEMENTO.textContent = NUMERO;
+                                    ELEMENTO.dataset.vista = "numero";
+                                }
+
+                            }
+                        }
+                    }
+            
                 }
             }
+            PUNTOS.textContent = celdas_limpiadas;
         }
 
-        
-
-        
     </script>
 </body>
 </html>
