@@ -1,11 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Busca minas</title>
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <main id="principal">
 
@@ -27,7 +29,7 @@
         var total_celdas_limpias = 0;
         var minas = 0;
         PUNTOS.textContent = celdas_limpiadas;
-    
+
 
 
         function terminar_partida() {
@@ -36,8 +38,10 @@
         }
 
         function victoria() {
-            alert("Has ganado");
-            window.location.href = "index.html";
+            setTimeout(() => {
+                alert("Has ganado");
+                window.location.href = "index.html";
+            }, 1000);
         }
 
         function construir_tablero() {
@@ -49,14 +53,14 @@
                     const P = document.createElement("p");
                     P.dataset.ejex = x;
                     P.dataset.ejey = y;
-                    if (NUMERO <= 1) {
+                    if (NUMERO <= 0.1) {
                         P.classList.add("bomba");
                         minas++;
                     } else {
                         total_celdas_limpias++;
                     }
                     P.addEventListener('click', () => {
-                        if(P.classList == "bomba") {
+                        if (P.classList == "bomba") {
                             escanear_todo();
                             setTimeout(() => {
                                 terminar_partida();
@@ -64,7 +68,7 @@
                         } else if (P.dataset.minas != 0) {
                             celdas_limpiadas++;
                             if (celdas_limpiadas == total_celdas_limpias) {
-                                setTimeout(() => {victoria()}, 1000);
+                                victoria();
                                 return;
                             }
                             PUNTOS.textContent = celdas_limpiadas;
@@ -98,15 +102,15 @@
                     console.log("NUEVO RECUENTO");
                     for (let x = -1; x <= 1; x++) {
                         for (let y = -1; y <= 1; y++) {
-                            if (x === 0 && y === 0){
+                            if (x === 0 && y === 0) {
                                 continue;
                             }
                             const elemento = document.querySelector(`[data-ejex="${EJE_X + x}"][data-ejey="${EJE_Y + y}"]`);
                             try {
-                                if  (elemento.classList == "bomba") {
-                                contador++;
+                                if (elemento.classList == "bomba") {
+                                    contador++;
                                 }
-                            } catch(err) {
+                            } catch (err) {
                                 console.log(EJE_X + " " + EJE_Y + " No tiene elemento");
                             }
                         }
@@ -127,10 +131,10 @@
                     continue;
                 }
                 switch (boton.dataset.minas) {
-                    case "0": 
-                        boton.classList.add("vacio"); 
+                    case "0":
+                        boton.classList.add("vacio");
                         break;
-                    case "1": 
+                    case "1":
                         boton.classList.add("uno");
                         boton.textContent = 1;
                         break;
@@ -172,10 +176,7 @@
             PUNTOS.textContent = total_celdas_limpias;
         }
 
-        function explorar_entorno(x,y) {
-            if (celdas_limpiadas == total_celdas_limpias) {
-                return victoria();
-            }
+        function explorar_entorno(x, y) {
             const CLASES = ["vacio", "uno", "dos", "tres", "cuatro", "cinco", "seis", "siete", "ocho"];
             for (let x2 = -1; x2 <= 1; x2++) {
                 for (let y2 = -1; y2 <= 1; y2++) {
@@ -186,9 +187,12 @@
                     if (ELEMENTO) {
                         if (!ELEMENTO.dataset.vista) {
                             if (ELEMENTO.classList != "bomba") {
-                                if (ELEMENTO.dataset.vista != "numero") {
-                                    celdas_limpiadas++;
+                                celdas_limpiadas++;
+                                if (celdas_limpiadas == total_celdas_limpias) {
+                                    victoria();
+                                    return;
                                 }
+                                
                                 if (ELEMENTO.dataset.minas == 0) {
                                     ELEMENTO.dataset.vista = "vacio";
                                     ELEMENTO.classList.add("vacio");
@@ -202,11 +206,10 @@
                                     ELEMENTO.textContent = NUMERO;
                                     ELEMENTO.dataset.vista = "numero";
                                 }
-
                             }
                         }
                     }
-            
+
                 }
             }
             PUNTOS.textContent = celdas_limpiadas;
@@ -214,4 +217,5 @@
 
     </script>
 </body>
+
 </html>
